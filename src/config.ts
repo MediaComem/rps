@@ -1,8 +1,16 @@
 import { join as joinPath, resolve as resolvePath } from 'path';
 
-export const port = parseEnvPort('RPS_PORT', { required: false }) || parseEnvPort('PORT', { required: false }) || 3000;
+export interface Config {
+  readonly port: number;
+}
 
 export const root = resolvePath(joinPath(__dirname, '..'));
+
+export function load(): Promise<Config> {
+  return Promise.resolve({
+    port: parseEnvPort('RPS_PORT', { required: false }) || parseEnvPort('PORT', { required: false }) || 3000
+  });
+}
 
 interface ParseEnvOptions {
   readonly defaultValue: string;

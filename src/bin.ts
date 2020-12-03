@@ -1,8 +1,9 @@
 import * as chalk from 'chalk';
 
-import { start } from './server';
+import { load as loadConfig } from './config';
+import { start as startServer } from './server';
 
-Promise.resolve().then(start).catch(err => {
+Promise.resolve().then(loadConfig).then(startServer).catch(err => {
   console.error(chalk.red(err.stack));
   process.exit(1);
 });

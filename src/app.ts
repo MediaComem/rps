@@ -7,26 +7,31 @@ import { middleware as compileStylus } from 'stylus';
 import { root } from './config';
 import { isHttpStatus, isObject } from './utils';
 
-const publicDir = joinPath(root, 'public');
-const viewsDir = joinPath(root, 'views');
+export function create() {
 
-export const app = express();
+  const publicDir = joinPath(root, 'public');
+  const viewsDir = joinPath(root, 'views');
 
-// Set up the view engine.
-app.set('views', viewsDir);
-app.set('view engine', 'pug');
+  const app = express();
 
-// Plug in generic middleware.
-app.use(logger('dev'));
-app.use(parseJson());
-app.use(compileStylus(publicDir));
-app.use(serveStatic(publicDir));
+  // Set up the view engine.
+  app.set('views', viewsDir);
+  app.set('view engine', 'pug');
 
-// Serve home page.
-app.get('/*', (_req, res) => res.render('index', { title: 'Express' }));
+  // Plug in generic middleware.
+  app.use(logger('dev'));
+  app.use(parseJson());
+  app.use(compileStylus(publicDir));
+  app.use(serveStatic(publicDir));
 
-// Global error handler.
-app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  // Plug in application middleware.
+  app.get('/*', (_req, res) => res.render('index', { title: 'Express' }));
+  app.use(globalErrorHandler);
+
+  return app;
+}
+
+function globalErrorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
   // Set locals, only providing error in development.
   res.locals.message = err instanceof Error ? err.message : 'An unexpected error occurred';
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -34,7 +39,7 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   // Render the error page.
   res.status(getHttpStatusForError(err));
   res.render('error');
-});
+}
 
 function getHttpStatusForError(err: unknown): number {
   return isObject(err) && isHttpStatus(err.status) ? err.status : 500;

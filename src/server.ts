@@ -1,16 +1,20 @@
 import * as debugFactory from 'debug';
 import { createServer as createHttpServer } from 'http';
 
-import { app } from './app';
-import { port } from './config';
+import { create as createApp } from './app';
+import { Config } from './config';
+import { create as createWebSocketServer } from './wss';
 
 const debug = debugFactory('rps:server');
 
-app.set('port', port);
+export function start({ port }: Config): Promise<void> {
 
-const server = createHttpServer(app);
+  const app = createApp()
+  app.set('port', port);
 
-export function start(): Promise<void> {
+  const server = createHttpServer(app);
+  createWebSocketServer(server);
+
   return new Promise((resolve, reject) => {
     server.listen(port);
     server.on('error', onError);

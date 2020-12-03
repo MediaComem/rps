@@ -23,16 +23,16 @@
     "noImplicitThis": true,
     "noUnusedLocals": false,
     "noUnusedParameters": true,
-    "outDir": "../dist",
+    "outDir": "../public",
     "resolveJsonModule": true,
     "rootDir": ".",
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
-    "target": "es6"
+    "target": "es5"
   },
   "include": [
     "."

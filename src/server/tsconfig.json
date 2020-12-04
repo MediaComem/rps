@@ -25,7 +25,7 @@
     "noUnusedParameters": true,
     "outDir": "../../dist",
     "resolveJsonModule": true,
-    "rootDir": ".",
+    "rootDir": "..",
     "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
@@ -35,6 +35,7 @@
     "target": "es6"
   },
   "include": [
+    "../common",
     "."
   ],
   "references": [

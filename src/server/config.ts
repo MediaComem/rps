@@ -4,7 +4,7 @@ export interface Config {
   readonly port: number;
 }
 
-export const root = resolvePath(joinPath(__dirname, '..'));
+export const root = resolvePath(joinPath(__dirname, '..', '..'));
 
 export function load(): Promise<Config> {
   return Promise.resolve({

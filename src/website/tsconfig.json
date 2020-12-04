@@ -22,7 +22,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": true,
     "outDir": "../../public",
-    "rootDir": ".",
+    "rootDir": "..",
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": false,
@@ -31,9 +31,10 @@
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
     "target": "es6",
-    "types": ["svelte"]
+    "types": [ "svelte" ]
   },
   "include": [
+    "../common",
     "."
   ],
   "references": [

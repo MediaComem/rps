@@ -1,5 +1,5 @@
 import HtmlPlugin from 'html-webpack-plugin';
-import { join as joinPath } from 'path';
+import { join as joinPath, resolve as resolvePath } from 'path';
 import sveltePreprocess from 'svelte-preprocess';
 import TerserPlugin from 'terser-webpack-plugin';
 import { Configuration } from 'webpack';
@@ -48,7 +48,11 @@ const config: Configuration = {
     minimizer: [ new TerserPlugin() ]
   },
   resolve: {
-    extensions: [ '.ts' ]
+    alias: {
+      svelte: resolvePath('node_modules', 'svelte')
+    },
+    extensions: [ '.mjs', '.js', '.svelte', '.ts' ],
+    mainFields: [ 'svelte', 'browser', 'module', 'main' ]
   },
   output: {
     filename: 'app.js',

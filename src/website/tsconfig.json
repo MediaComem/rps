@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "allowJs": false,
     "allowSyntheticDefaultImports": false,
@@ -7,13 +8,10 @@
     "allowUnusedLabels": false,
     "alwaysStrict": true,
     "declaration": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "lib": [
-      "esnext"
-    ],
-    "module": "commonjs",
     "moduleResolution": "node",
     "noEmit": false,
     "noEmitOnError": true,
@@ -23,21 +21,22 @@
     "noImplicitThis": true,
     "noUnusedLocals": false,
     "noUnusedParameters": true,
-    "outDir": "../dist",
-    "resolveJsonModule": true,
+    "outDir": "../../public",
     "rootDir": ".",
+    "sourceMap": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
-    "target": "es6"
+    "target": "es6",
+    "types": ["svelte"]
   },
   "include": [
     "."
   ],
   "references": [
-    { "path": "../" }
+    { "path": "../../" }
   ]
 }

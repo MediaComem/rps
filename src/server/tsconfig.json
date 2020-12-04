@@ -23,21 +23,21 @@
     "noImplicitThis": true,
     "noUnusedLocals": false,
     "noUnusedParameters": true,
-    "outDir": "../public",
+    "outDir": "../../dist",
     "resolveJsonModule": true,
     "rootDir": ".",
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
-    "target": "es5"
+    "target": "es6"
   },
   "include": [
     "."
   ],
   "references": [
-    { "path": "../" }
+    { "path": "../../" }
   ]
 }

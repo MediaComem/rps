@@ -2,7 +2,7 @@ import { Server as HttpServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 
 import { messageCodec } from '../common/messages';
-import { decode } from '../common/utils';
+import { decode, encodeMessage } from '../common/utils';
 
 export function create(httpServer: HttpServer) {
   const webSocketServer = new WebSocketServer({ server: httpServer });
@@ -13,10 +13,14 @@ export function create(httpServer: HttpServer) {
         return;
       }
 
-      const decoded = decode(messageCodec, JSON.parse(message));
+      const decoded = decode(messageCodec, message);
       console.log('received message: %s', decoded);
     });
 
-    client.send('hello');
+    client.send(encodeMessage({
+      topic: 'hello',
+      event: 'hello',
+      payload: 'hello'
+    }));
   });
 }

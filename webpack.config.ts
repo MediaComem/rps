@@ -15,6 +15,14 @@ const config: Configuration = {
   entry: './src/website/main.ts',
   module: {
     rules: [
+      {
+        test: /\.css$/i,
+        use: [ 'style-loader', 'css-loader' ],
+      },
+      {
+        test: /\.styl$/i,
+        use: [ 'style-loader', 'css-loader', 'stylus-loader' ]
+      },
       // Fix for svelte-loader problem. See
       // https://github.com/sveltejs/svelte-loader/issues/139.
       {

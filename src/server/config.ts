@@ -1,15 +1,49 @@
+import { Config as KnexConfig } from 'knex';
 import { join as joinPath, resolve as resolvePath } from 'path';
 
 export interface Config {
+  readonly database: KnexConfig;
   readonly port: number;
 }
 
 export const root = resolvePath(joinPath(__dirname, '..', '..'));
 
-export function load(): Promise<Config> {
+export async function loadConfig(): Promise<Config> {
+  await loadDotenvIfAvailable();
+
   return Promise.resolve({
+    database: {
+      client: 'postgresql',
+      // FIXME: check valid URL
+      connection: process.env.RPS_DATABASE_URL || 'postgresql://rps@localhost/rps',
+      // FIXME: pretty database query logs
+      debug: parseEnvBoolean('RPS_DATABASE_DEBUG', { required: false }),
+      migrations: {
+        directory: joinPath(root, 'dist', 'server', 'migrations'),
+        tableName: 'migrations'
+      },
+      pool: {
+        min: 2,
+        max: 10
+      }
+    },
     port: parseEnvPort('RPS_PORT', { required: false }) || parseEnvPort('PORT', { required: false }) || 3000
   });
+}
+
+async function loadDotenvIfAvailable() {
+  let dotenv;
+  try {
+    dotenv = await import('dotenv');
+  } catch {
+    // Ignore missing dotenv.
+  }
+
+  if (dotenv) {
+    dotenv.config({
+      path: joinPath(root, '.env')
+    });
+  }
 }
 
 interface ParseEnvOptions {
@@ -35,6 +69,24 @@ function parseEnv(varname: string, options: Partial<ParseEnvOptions> = {}) {
     throw new Error(`Environment variable $${varname} is required`);
   } else {
     return options.defaultValue;
+  }
+}
+
+function parseEnvBoolean(varname: string, options?: Partial<ParseEnvOptions>): boolean | undefined;
+function parseEnvBoolean(varname: string, options: ParseEnvOptions): boolean;
+function parseEnvBoolean(varname: string, options: Partial<ParseEnvOptions> = {}) {
+
+  const value = parseEnv(varname, options);
+  if (value === undefined) {
+    return;
+  }
+
+  if (/^(?:1|y|yes|t|true)$/u.exec(value)) {
+    return true;
+  } else if (/^(?:0|n|no|f|false)$/u.exec(value)) {
+    return false;
+  } else {
+    throw new Error(`Environment variable $${varname} must be a boolean, but its value is: ${JSON.stringify(value)}`);
   }
 }
 

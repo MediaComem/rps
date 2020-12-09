@@ -1,13 +1,57 @@
 import * as t from 'io-ts';
 
-export interface Message {
-  readonly topic: string;
-  readonly event: string;
-  readonly payload: unknown;
-}
+export const playerCodec = t.readonly(t.interface({
+  id: t.string,
+  name: t.string
+}));
 
-export const messageCodec = t.interface({
-  topic: t.readonly(t.string),
-  event: t.readonly(t.string),
-  payload: t.unknown
-});
+export const gameCodec = t.readonly(t.interface({
+  id: t.readonly(t.string),
+  players: t.readonly(t.tuple([
+    playerCodec,
+    t.union([ playerCodec, t.null ])
+  ]))
+}));
+
+export const availableGamesMessageCodec = t.readonly(t.interface({
+  topic: t.readonly(t.literal('games')),
+  event: t.readonly(t.literal('available')),
+  payload: t.readonlyArray(gameCodec)
+}));
+
+export const gameCreatedMessageCodec = t.readonly(t.interface({
+  topic: t.readonly(t.literal('games')),
+  event: t.readonly(t.literal('created')),
+  payload: t.readonly(t.interface({
+    id: t.string
+  }))
+}));
+
+export const createGameMessageCodec = t.readonly(t.interface({
+  topic: t.readonly(t.literal('games')),
+  event: t.readonly(t.literal('create')),
+  payload: t.readonly(t.interface({
+    playerName: t.string
+  }))
+}));
+
+export const playerRegisteredMessageCodec = t.readonly(t.interface({
+  topic: t.readonly(t.literal('players')),
+  event: t.readonly(t.literal('registered')),
+  payload: t.readonly(t.interface({
+    id: t.string
+  }))
+}));
+
+export const messageCodec = t.union([
+  availableGamesMessageCodec,
+  createGameMessageCodec,
+  gameCreatedMessageCodec,
+  playerRegisteredMessageCodec
+])
+
+export type Game = t.TypeOf<typeof gameCodec>;
+export type GameMessage = t.TypeOf<typeof availableGamesMessageCodec> | t.TypeOf<typeof createGameMessageCodec> | t.TypeOf<typeof gameCreatedMessageCodec>;
+export type Player = t.TypeOf<typeof playerCodec>;
+export type PlayerMessage = t.TypeOf<typeof playerRegisteredMessageCodec>;
+export type Message = GameMessage | PlayerMessage;

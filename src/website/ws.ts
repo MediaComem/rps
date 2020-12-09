@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
-import { Message, messageCodec } from '../common/messages';
+import { derived, writable } from 'svelte/store';
 
+import { Message, messageCodec } from '../common/messages';
 import { decode, encodeMessage } from '../common/utils';
 
 export enum WebSocketConnectionState {
@@ -26,6 +26,8 @@ webSocketUrl.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
 export const webSocketStore = createWebSocketStore();
 
+export const latestMessageStore = derived(webSocketStore, store => store.messages[0]);
+
 function createWebSocketStore() {
 
   const { subscribe, update } = writable<WebSocketStore>(initialWebSocketStore);
@@ -43,15 +45,21 @@ function createWebSocketStore() {
       console.log('@@@ message received', decoded);
       update(store => ({ ...store, messages: [ decoded, ...store.messages.slice(0, maxMessagesInMemory - 1) ]}));
     } else {
-      console.log('@@@ invalid message received');
+      console.log('@@@ invalid message received', message.data);
     }
   });
 
   ws.addEventListener('open', () => {
     console.log('@@@ connection opened');
     update(store => ({ ...store, connection: WebSocketConnectionState.Connected }));
-    ws.send(encodeMessage({ topic: 'foo', event: 'bar', payload: 42 }));
   });
 
-  return { subscribe };
+  function sendMessage(message: Message) {
+    ws.send(encodeMessage(message));
+  }
+
+  return {
+    sendMessage,
+    subscribe
+  };
 }

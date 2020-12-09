@@ -1,14 +1,14 @@
 import * as debugFactory from 'debug';
 import { createServer as createHttpServer } from 'http';
-import * as Knex from 'knex';
 
 import { createApplication } from './app';
 import { Config } from './config';
+import { Database } from './db';
 import { createWebSocketServer } from './wss';
 
 const debug = debugFactory('rps:server');
 
-export function start({ port }: Config, db: Knex): Promise<void> {
+export function start({ port }: Config, db: Database): Promise<void> {
 
   const app = createApplication()
   app.set('port', port);

@@ -1,49 +1,52 @@
 import { Server as HttpServer } from 'http';
-import * as Knex from 'knex';
 import { v4 as uuid } from 'uuid';
 import * as WebSocket from 'ws';
 import { Server as WebSocketServer } from 'ws';
 
-import { CreateGameMessage, Game, GameMessage, Message, messageCodec, Player } from '../common/messages';
-import { decode, encodeMessage } from '../common/utils';
+import { CreateGameMessage, Game, gameCodec, GameMessage, Message, messageCodec, Player } from '../common/messages';
+import { decode, decodeString, encodeMessage } from '../common/utils';
+import { Database } from './db';
 
 const clients: Record<string, WebSocket | undefined> = {};
 const games: Game[] = [];
 
-export function createWebSocketServer(db: Knex, httpServer: HttpServer) {
+export function createWebSocketServer(db: Database, httpServer: HttpServer) {
+
+  db.subscriber.notifications.on('games:created', payload => {
+    const decoded = decode(gameCodec, payload);
+    if (decoded) {
+      Promise
+        .resolve()
+        .then(() => handleGameCreated(decoded))
+        .catch(err => console.error(err.stack));
+    }
+  });
+
   const webSocketServer = new WebSocketServer({ server: httpServer });
   webSocketServer.on('connection', client => registerClient(db, client));
 }
 
-async function createGame(db: Knex, clientId: string, message: CreateGameMessage) {
+async function createGame(db: Database, clientId: string, message: CreateGameMessage) {
   const { playerName } = message.payload;
 
   const firstPlayer: Player = { id: clientId, name: playerName };
 
-  const [ gameId ] = await db('games').insert({
-    first_player_id: clientId,
-    first_player_name: playerName
-  }).returning('id');
+  let gameId = '';
+  await db.knex.transaction(async () => {
+    [ gameId ] = await db.knex('games').insert({
+      first_player_id: clientId,
+      first_player_name: playerName
+    }).returning('id')
 
-  const newGame: Game = {
-    id: gameId,
-    players: [ firstPlayer, null ]
-  };
+    const newGame: Game = {
+      id: gameId,
+      players: [ firstPlayer, null ]
+    };
 
-  games.push(newGame);
-
-  sendMessage(clientId, {
-    topic: 'games',
-    event: 'created',
-    payload: {
-      id: gameId
-    }
-  });
-
-  broadcastMessageToOthers(clientId, {
-    topic: 'games',
-    event: 'available',
-    payload: [ newGame ]
+    await db.knex.raw(
+      "SELECT pg_notify('games:created', ?);",
+      [ JSON.stringify(newGame) ]
+    );
   });
 }
 
@@ -56,7 +59,28 @@ function findUnusedUuid() {
   }
 }
 
-async function handleMessage(db: Knex, clientId: string, message: Message) {
+async function handleGameCreated(game: Game) {
+  const clientId = game.players[0].id;
+  const gameId = game.id;
+
+  games.push(game);
+
+  sendMessage(clientId, {
+    topic: 'games',
+    event: 'created',
+    payload: {
+      id: gameId
+    }
+  });
+
+  broadcastMessageToOthers(clientId, {
+    topic: 'games',
+    event: 'available',
+    payload: [ game ]
+  });
+}
+
+async function handleMessage(db: Database, clientId: string, message: Message) {
   switch (message.topic) {
     case 'games':
       await handleGameMessage(db, clientId, message);
@@ -66,7 +90,7 @@ async function handleMessage(db: Knex, clientId: string, message: Message) {
   }
 }
 
-async function handleGameMessage(db: Knex, clientId: string, message: GameMessage) {
+async function handleGameMessage(db: Database, clientId: string, message: GameMessage) {
   switch (message.event) {
     case 'create':
       await createGame(db, clientId, message)
@@ -76,14 +100,14 @@ async function handleGameMessage(db: Knex, clientId: string, message: GameMessag
   }
 }
 
-function registerClient(db: Knex, client: WebSocket) {
+function registerClient(db: Database, client: WebSocket) {
 
   const clientId = findUnusedUuid();
   clients[clientId] = client;
   console.log(`Client ${clientId} connected`);
 
   client.on('message', message => {
-    const decoded = decode(messageCodec, message);
+    const decoded = decodeString(messageCodec, message);
     if (decoded) {
       Promise
         .resolve()

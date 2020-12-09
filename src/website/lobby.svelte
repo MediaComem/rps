@@ -48,7 +48,7 @@
       case 'available':
         games.update(g => [ ...message.payload, ...g ]);
         break;
-      case 'create':
+      case 'created':
         // Nothing to do.
         break;
       default:

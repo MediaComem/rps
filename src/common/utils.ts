@@ -3,7 +3,15 @@ import type * as t from 'io-ts';
 
 import type { Message } from './messages';
 
-export function decode<Codec extends t.TypeC<any> | t.UnionC<any>>(
+export function decode<Codec extends t.ReadonlyC<t.TypeC<any>> | t.TypeC<any> | t.UnionC<any>>(
+  codec: Codec,
+  data: unknown
+): t.TypeOf<Codec> | undefined {
+  const either = codec.decode(data);
+  return isRight(either) ? either.right : undefined;
+}
+
+export function decodeString<Codec extends t.ReadonlyC<t.TypeC<any>> | t.TypeC<any> | t.UnionC<any>>(
   codec: Codec,
   data: unknown
 ): t.TypeOf<Codec> | undefined {
@@ -16,8 +24,7 @@ export function decode<Codec extends t.TypeC<any> | t.UnionC<any>>(
     return;
   }
 
-  const either = codec.decode(parsed);
-  return isRight(either) ? either.right : undefined;
+  return decode(codec, parsed);
 }
 
 export function encodeMessage(message: Message) {

@@ -1,7 +1,7 @@
 import { derived, writable } from 'svelte/store';
 
 import { Message, messageCodec } from '../common/messages';
-import { decode, encodeMessage } from '../common/utils';
+import { decodeString, encodeMessage } from '../common/utils';
 
 export enum WebSocketConnectionState {
   Connecting,
@@ -40,7 +40,7 @@ function createWebSocketStore() {
   });
 
   ws.addEventListener('message', message => {
-    const decoded = decode(messageCodec, message.data);
+    const decoded = decodeString(messageCodec, message.data);
     if (decoded) {
       console.log('@@@ message received', decoded);
       update(store => ({ ...store, messages: [ decoded, ...store.messages.slice(0, maxMessagesInMemory - 1) ]}));

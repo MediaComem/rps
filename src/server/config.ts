@@ -1,8 +1,14 @@
-import { Config as KnexConfig } from 'knex';
+import { MigratorConfig, PoolConfig } from 'knex';
 import { join as joinPath, resolve as resolvePath } from 'path';
 
 export interface Config {
-  readonly database: KnexConfig;
+  readonly database: {
+    readonly client: string;
+    readonly connection: string;
+    readonly debug?: boolean;
+    readonly migrations: MigratorConfig;
+    readonly pool: PoolConfig;
+  };
   readonly port: number;
 }
 

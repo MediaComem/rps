@@ -6,6 +6,7 @@ export interface Config {
   readonly port: number;
 }
 
+export const env = process.env.NODE_ENV || 'development';
 export const root = resolvePath(joinPath(__dirname, '..', '..'));
 
 export async function loadConfig(): Promise<Config> {

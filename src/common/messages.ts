@@ -50,8 +50,9 @@ export const messageCodec = t.union([
   playerRegisteredMessageCodec
 ])
 
+export type CreateGameMessage = t.TypeOf<typeof createGameMessageCodec>;
 export type Game = t.TypeOf<typeof gameCodec>;
-export type GameMessage = t.TypeOf<typeof availableGamesMessageCodec> | t.TypeOf<typeof createGameMessageCodec> | t.TypeOf<typeof gameCreatedMessageCodec>;
+export type GameMessage = t.TypeOf<typeof availableGamesMessageCodec> | CreateGameMessage | t.TypeOf<typeof gameCreatedMessageCodec>;
 export type Player = t.TypeOf<typeof playerCodec>;
 export type PlayerMessage = t.TypeOf<typeof playerRegisteredMessageCodec>;
 export type Message = GameMessage | PlayerMessage;

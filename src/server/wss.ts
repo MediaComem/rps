@@ -1,63 +1,50 @@
 import { Server as HttpServer } from 'http';
+import * as Knex from 'knex';
 import { v4 as uuid } from 'uuid';
 import * as WebSocket from 'ws';
 import { Server as WebSocketServer } from 'ws';
 
-import { Game, GameMessage, Message, messageCodec, Player } from '../common/messages';
+import { CreateGameMessage, Game, GameMessage, Message, messageCodec, Player } from '../common/messages';
 import { decode, encodeMessage } from '../common/utils';
 
 const clients: Record<string, WebSocket | undefined> = {};
 const games: Game[] = [];
 
-export function create(httpServer: HttpServer) {
+export function createWebSocketServer(db: Knex, httpServer: HttpServer) {
   const webSocketServer = new WebSocketServer({ server: httpServer });
-  webSocketServer.on('connection', registerClient);
+  webSocketServer.on('connection', client => registerClient(db, client));
 }
 
-function handleMessage(clientId: string, message: Message) {
-  switch (message.topic) {
-    case 'games':
-      handleGameMessage(clientId, message);
-      break;
-  }
-}
+async function createGame(db: Knex, clientId: string, message: CreateGameMessage) {
+  const { playerName } = message.payload;
 
-function handleGameMessage(clientId: string, message: GameMessage) {
-  switch (message.event) {
+  const firstPlayer: Player = { id: clientId, name: playerName };
 
-    case 'available':
-      break;
+  const [ gameId ] = await db('games').insert({
+    first_player_id: clientId,
+    first_player_name: playerName
+  }).returning('id');
 
-    case 'create':
+  const newGame: Game = {
+    id: gameId,
+    players: [ firstPlayer, null ]
+  };
 
-      const { playerName } = message.payload;
+  games.push(newGame);
 
-      const firstPlayer: Player = { id: clientId, name: playerName };
-      const gameId = uuid();
-      const newGame: Game = {
-        id: gameId,
-        players: [ firstPlayer, null ]
-      };
+  sendMessage(clientId, {
+    topic: 'games',
+    event: 'created',
+    payload: {
+      id: gameId
+    }
+  });
 
-      games.push(newGame);
-
-      sendMessage(clientId, {
-        topic: 'games',
-        event: 'created',
-        payload: {
-          id: gameId
-        }
-      });
-
-      broadcastMessageToOthers(clientId, {
-        topic: 'games',
-        event: 'available',
-        payload: [ newGame ]
-      });
-
-      break;
-
-  }
+  broadcastMessageToOthers(clientId, {
+    topic: 'games',
+    event: 'available',
+    payload: [ newGame ]
+  });
 }
 
 function findUnusedUuid() {
@@ -69,7 +56,27 @@ function findUnusedUuid() {
   }
 }
 
-function registerClient(client: WebSocket) {
+async function handleMessage(db: Knex, clientId: string, message: Message) {
+  switch (message.topic) {
+    case 'games':
+      await handleGameMessage(db, clientId, message);
+      break;
+    default:
+      console.log('Received unexpected message', encodeMessage(message));
+  }
+}
+
+async function handleGameMessage(db: Knex, clientId: string, message: GameMessage) {
+  switch (message.event) {
+    case 'create':
+      await createGame(db, clientId, message)
+      break;
+    default:
+      console.log('Received unexpected game message', encodeMessage(message));
+  }
+}
+
+function registerClient(db: Knex, client: WebSocket) {
 
   const clientId = findUnusedUuid();
   clients[clientId] = client;
@@ -78,7 +85,10 @@ function registerClient(client: WebSocket) {
   client.on('message', message => {
     const decoded = decode(messageCodec, message);
     if (decoded) {
-      handleMessage(clientId, decoded);
+      Promise
+        .resolve()
+        .then(() => handleMessage(db, clientId, decoded))
+        .catch(err => console.error(err.stack));
     }
   });
 

@@ -6,7 +6,7 @@ import { join as joinPath } from 'path';
 import { root } from './config';
 import { isHttpStatus, isObject } from './utils';
 
-export function create() {
+export function createApplication() {
 
   const publicDir = joinPath(root, 'public');
 

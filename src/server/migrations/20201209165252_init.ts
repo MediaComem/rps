@@ -2,14 +2,27 @@ import * as Knex from "knex";
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.raw('CREATE EXTENSION "uuid-ossp";');
+
   await knex.schema.createTable('games', t => {
-    t.uuid('id').primary();
+    t.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     t.uuid('first_player_id').notNullable();
     t.string('first_player_name', 50).notNullable();
     t.uuid('second_player_id');
     t.string('second_player_name', 50);
-    t.enum('state', [ 'created', 'ongoing', 'complete' ]).notNullable();
+    t.enum(
+      'state',
+      [ 'waiting_for_player', 'ongoing', 'first_player_wins', 'second_player_wins', 'draw' ]
+    ).notNullable().defaultTo('waiting_for_player');
   });
+
+  await knex.schema.raw(`
+    ALTER TABLE games
+    ADD CONSTRAINT check_state
+    CHECK (
+      (state = 'waiting_for_player' AND second_player_id IS NULL AND second_player_name IS NULL) OR
+      (state != 'waiting_for_player' AND second_player_id IS NOT NULL AND second_player_name IS NOT NULL)
+    );
+  `)
 }
 
 export async function down(knex: Knex): Promise<void> {

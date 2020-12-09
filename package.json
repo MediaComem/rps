@@ -14,8 +14,10 @@
     "dev:build": "npm run build:all",
     "dev:watch": "concurrently \"npm run build:server:watch\" \"npm run build:website:watch\" \"npm run start:watch\"",
     "doctoc": "doctoc --github --notitle README.md",
-    "migrate": "node dist/server/scripts/migrate.js",
+    "migrate": "npm run migrate:latest",
+    "migrate:latest": "knex --knexfile ./dist/server/knexfile.js migrate:latest",
     "migrate:make": "cd src/server && knex migrate:make --knexfile knexfile.ts -x ts",
+    "migrate:rollback": "knex --knexfile ./dist/server/knexfile.js migrate:rollback",
     "start": "node ./bin/www",
     "start:watch": "cross-env DEBUG=rps:* nodemon"
   },

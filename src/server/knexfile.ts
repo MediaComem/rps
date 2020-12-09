@@ -1,6 +1,4 @@
-import { loadConfig } from './config';
-
-const env = process.env.NODE_ENV || 'development';
+import { env, loadConfig } from './config';
 
 // export default configs;
 module.exports = async () => {

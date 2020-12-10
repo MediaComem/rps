@@ -36,6 +36,7 @@
     "ws": "^7.4.1"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.1",
     "@popperjs/core": "^2.5.4",
     "@tsconfig/svelte": "^1.0.10",
     "@types/debug": "^4.1.5",
@@ -53,6 +54,7 @@
     "css-loader": "^5.0.1",
     "doctoc": "^2.0.0",
     "dotenv": "^8.2.0",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.0.0-alpha.15",
     "nodemon": "^2.0.6",
     "onchange": "^7.1.0",

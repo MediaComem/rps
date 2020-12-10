@@ -7,11 +7,13 @@ export async function up(knex: Knex): Promise<void> {
     t.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     t.uuid('first_player_id').notNullable();
     t.string('first_player_name', 50).notNullable();
+    t.enum('first_player_move', [ 'rock', 'paper', 'scissors' ]);
     t.uuid('second_player_id');
     t.string('second_player_name', 50);
+    t.enum('second_player_move', [ 'rock', 'paper', 'scissors' ]);
     t.enum(
       'state',
-      [ 'waiting_for_player', 'ongoing', 'first_player_wins', 'second_player_wins', 'draw' ]
+      [ 'waiting_for_player', 'ongoing', 'done' ]
     ).notNullable().defaultTo('waiting_for_player');
   });
 
@@ -19,7 +21,7 @@ export async function up(knex: Knex): Promise<void> {
     ALTER TABLE games
     ADD CONSTRAINT check_state
     CHECK (
-      (state = 'waiting_for_player' AND second_player_id IS NULL AND second_player_name IS NULL) OR
+      (state = 'waiting_for_player' AND first_player_move IS NULL AND second_player_id IS NULL AND second_player_name IS NULL AND second_player_move IS NULL) OR
       (state != 'waiting_for_player' AND second_player_id IS NOT NULL AND second_player_name IS NOT NULL)
     );
   `);

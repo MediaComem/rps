@@ -35,7 +35,13 @@ export async function createDatabase({ database: config }: Config): Promise<Data
   });
 
   await subscriber.connect();
-  await subscriber.listenTo('games:created');
+
+  await Promise.all([
+    subscriber.listenTo('games:created'),
+    subscriber.listenTo('games:joined'),
+    subscriber.listenTo('games:played'),
+    subscriber.listenTo('games:timeout')
+  ]);
 
   debug('Subscribed to database notifications');
 

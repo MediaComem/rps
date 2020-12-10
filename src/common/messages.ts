@@ -19,6 +19,23 @@ export const availableGamesMessageCodec = t.readonly(t.interface({
   payload: t.readonlyArray(gameCodec)
 }));
 
+export const createGameMessageCodec = t.readonly(t.interface({
+  topic: t.literal('games'),
+  event: t.literal('create'),
+  payload: t.readonly(t.interface({
+    playerName: t.string
+  }))
+}));
+
+export const joinGameMessageCodec = t.readonly(t.interface({
+  topic: t.literal('games'),
+  event: t.literal('join'),
+  payload: t.readonly(t.interface({
+    gameId: t.string,
+    playerId: t.string
+  }))
+}));
+
 export const gameCreatedMessageCodec = t.readonly(t.interface({
   topic: t.literal('games'),
   event: t.literal('created'),
@@ -27,10 +44,12 @@ export const gameCreatedMessageCodec = t.readonly(t.interface({
   }))
 }));
 
-export const createGameMessageCodec = t.readonly(t.interface({
+export const gameJoinedMessageCodec = t.readonly(t.interface({
   topic: t.literal('games'),
-  event: t.literal('create'),
+  event: t.literal('joined'),
   payload: t.readonly(t.interface({
+    gameId: t.string,
+    playerId: t.string,
     playerName: t.string
   }))
 }));
@@ -47,12 +66,23 @@ export const messageCodec = t.union([
   availableGamesMessageCodec,
   createGameMessageCodec,
   gameCreatedMessageCodec,
+  gameJoinedMessageCodec,
+  joinGameMessageCodec,
   playerRegisteredMessageCodec
 ]);
 
 export type CreateGameMessage = t.TypeOf<typeof createGameMessageCodec>;
 export type Game = t.TypeOf<typeof gameCodec>;
-export type GameMessage = t.TypeOf<typeof availableGamesMessageCodec> | CreateGameMessage | t.TypeOf<typeof gameCreatedMessageCodec>;
+
+export type GameMessage =
+  t.TypeOf<typeof availableGamesMessageCodec> |
+  CreateGameMessage |
+  t.TypeOf<typeof gameCreatedMessageCodec> |
+  t.TypeOf<typeof gameJoinedMessageCodec> |
+  t.TypeOf<typeof joinGameMessageCodec>
+;
+
 export type Player = t.TypeOf<typeof playerCodec>;
 export type PlayerMessage = t.TypeOf<typeof playerRegisteredMessageCodec>;
+
 export type Message = GameMessage | PlayerMessage;

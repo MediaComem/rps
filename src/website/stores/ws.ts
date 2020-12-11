@@ -58,44 +58,51 @@ export function onMessage<Codec extends t.ReadonlyC<t.TypeC<any>>>(codec: Codec,
 function createWebSocketStore(): WebSocketStore {
 
   let messages: Readonly<Message[]> = [];
-  const ws = new WebSocket(webSocketUrl.toString());
+  let currentWs = new WebSocket(webSocketUrl.toString());
 
   const { subscribe } = readable<WebSocketState>({
     messages,
     connection: WebSocketConnectionState.Connecting
   }, set => {
-    ws.addEventListener('close', () => {
-      console.log('@@@ connection closed');
-      set({
-        messages,
-        connection: WebSocketConnectionState.Disconnected
-      });
-    });
+    on(currentWs);
 
-    ws.addEventListener('message', message => {
-      const decoded = decodeString(messageCodec, message.data);
-      if (decoded) {
-        messages = [ decoded, ...messages.slice(0, maxMessagesInMemory - 1) ];
+    function on(ws: WebSocket) {
+      ws.addEventListener('close', () => {
+        set({
+          messages,
+          connection: WebSocketConnectionState.Disconnected
+        });
+
+        setTimeout(() => {
+          currentWs = new WebSocket(webSocketUrl.toString());
+          on(currentWs);
+        }, 3000); // TODO: exponential backoff
+      });
+
+      ws.addEventListener('message', message => {
+        const decoded = decodeString(messageCodec, message.data);
+        if (decoded) {
+          messages = [ decoded, ...messages.slice(0, maxMessagesInMemory - 1) ];
+          set({
+            messages,
+            connection: WebSocketConnectionState.Connected
+          });
+        } else {
+          console.warn('Invalid message received', message.data);
+        }
+      });
+
+      ws.addEventListener('open', () => {
         set({
           messages,
           connection: WebSocketConnectionState.Connected
         });
-      } else {
-        console.log('@@@ invalid message received', message.data);
-      }
-    });
-
-    ws.addEventListener('open', () => {
-      console.log('@@@ connection opened');
-      set({
-        messages,
-        connection: WebSocketConnectionState.Connected
       });
-    });
+    }
   });
 
   function sendMessage(message: Message) {
-    ws.send(encodeMessage(message));
+    currentWs.send(encodeMessage(message));
   }
 
   const baseStore = { subscribe };

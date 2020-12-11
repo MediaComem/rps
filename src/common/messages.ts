@@ -1,5 +1,7 @@
 import * as t from 'io-ts';
 
+// TODO: split client/server messages
+
 export const moveCodec = t.union([
   t.literal('rock'),
   t.literal('paper'),

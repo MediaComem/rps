@@ -4,6 +4,8 @@ import sveltePreprocess from 'svelte-preprocess';
 import TerserPlugin from 'terser-webpack-plugin';
 import { Configuration } from 'webpack';
 
+import * as pkg from './package.json';
+
 const root = __dirname;
 const publicDir = joinPath(root, 'public');
 
@@ -55,7 +57,7 @@ const config: Configuration = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[ext]',
+              name: '[name].[contenthash].[ext]',
               outputPath: 'fonts/'
             }
           }
@@ -75,12 +77,12 @@ const config: Configuration = {
     mainFields: [ 'svelte', 'browser', 'module', 'main' ]
   },
   output: {
-    filename: 'app.js',
+    filename: 'app.[contenthash].js',
     path: publicDir
   },
   plugins: [
     new HtmlPlugin({
-      title: 'Rock Paper Scissors'
+      title: pkg.title || 'Rock Paper Scissors'
     })
   ]
 };

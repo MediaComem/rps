@@ -1,5 +1,6 @@
 # TODO
 
+* Load available games on startup
 * Auto reconnect
-* Asset hash
 * Proper logging
+* Only use necessary fonts

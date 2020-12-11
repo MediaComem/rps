@@ -1,5 +1,6 @@
 {
   "name": "rps",
+  "title": "Rock Paper Scissors",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -18,7 +19,8 @@
     "migrate:latest": "knex --knexfile ./dist/server/knexfile.js migrate:latest",
     "migrate:make": "cd src/server && knex migrate:make --knexfile knexfile.ts -x ts",
     "migrate:rollback": "knex --knexfile ./dist/server/knexfile.js migrate:rollback",
-    "start": "node ./bin/www",
+    "prebuild": "./scripts/prebuild.sh",
+    "start": "cross-env NODE_ENV=production node ./bin/www",
     "start:watch": "cross-env DEBUG=rps:* nodemon"
   },
   "dependencies": {

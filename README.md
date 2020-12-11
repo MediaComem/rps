@@ -9,8 +9,9 @@
 - [Requirements](#requirements)
 - [Usage](#usage)
   - [Initial setup](#initial-setup)
-  - [Development](#development)
-  - [Production](#production)
+  - [Updating](#updating)
+  - [Local development](#local-development)
+  - [Production deployment](#production-deployment)
 - [Configuration](#configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -28,6 +29,8 @@
 
 ### Initial setup
 
+Install and configure the application:
+
 ```bash
 # Clone the repository.
 git clone https://github.com/MediaComem/rps.git
@@ -40,19 +43,19 @@ npm ci
 sudo -u postgres createuser --pwprompt rps
 sudo -u postgres createdb --owner rps rps
 
-# Create a .env file and adapt the PostgreSQL connection URL according to the
-# user and database you just created.
+# Create a .env file and edit it to adapt the PostgreSQL connection URL
+# according to the user and database you just created.
 cp .env.sample .env
 ```
 
-If you are in a **memory-constrained** environment with little RAM such as a
-small cloud server, install the pre-built version of the application:
+If you are in a **memory-constrained environment** such as a small cloud server,
+install the pre-built version of the application:
 
 ```bash
 npm run prebuild
 ```
 
-Otherwise, you can perform a full build, which requires copious amounts of CPU
+*Otherwise*, you can perform a full build, which requires copious amounts of CPU
 and RAM:
 
 ```bash
@@ -65,7 +68,25 @@ Once the prebuild or build is done, migrate the database to the latest version:
 npm run migrate
 ```
 
-### Development
+### Updating
+
+To take all changes into account after updating the code to the latest version,
+execute the following commands in the application's directory:
+
+```bash
+# Update dependencies (install new ones and upgrade existing ones).
+npm install
+
+# Pre-build or build the application again (one or the other depending on your
+# server's capabilities).
+npm run prebuild
+npm run build
+
+# Migrate the database to the latest version.
+npm run migrate
+```
+
+### Local development
 
 > **WARNING:** do **NOT** do this in **memory-constrained** environments such as
 > a small cloud server. This is intended for development on your local machine.
@@ -75,7 +96,7 @@ npm run migrate
 npm run dev
 ```
 
-### Production
+### Production deployment
 
 ```bash
 # Run the application in production mode.

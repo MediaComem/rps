@@ -18,7 +18,7 @@ if test -f tmp/precompiled-force.tar.gz; then
   echo "Using existing precompiled package tmp/precompiled-force.tar.gz"
 else
   url="https://github.com/MediaComem/rps/releases/download/v${version}/precompiled.tar.gz"
-  curl -sSLo tmp/precompiled.tar.gz "$url"
+  curl -fsSLo tmp/precompiled.tar.gz "$url"
   echo "Downloaded precompiled package from $url"
 fi
 

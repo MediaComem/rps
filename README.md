@@ -39,8 +39,10 @@ git clone https://github.com/MediaComem/rps.git
 cd rps
 npm ci
 
-# Create a PostgreSQL user and database both named "rps".
+# Create a PostgreSQL user named "rps".
 sudo -u postgres createuser --pwprompt rps
+
+# Create an empty PostgreSQL database named "rps" and owned by the "rps" user.
 sudo -u postgres createdb --owner rps rps
 
 # Create a .env file and edit it to adapt the PostgreSQL connection URL

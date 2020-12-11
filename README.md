@@ -39,7 +39,7 @@ git clone https://github.com/MediaComem/rps.git
 cd rps
 npm ci
 
-# Create a PostgreSQL user and database.
+# Create a PostgreSQL user and database both named "rps".
 sudo -u postgres createuser --pwprompt rps
 sudo -u postgres createdb --owner rps rps
 

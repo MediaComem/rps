@@ -7,6 +7,7 @@
     "build": "npm run build:clean && cross-env RPS_WEBPACK_MODE=production npm run build:all",
     "build:all": "concurrently \"npm run build:server\" \"npm run build:website\"",
     "build:clean": "rimraf dist public",
+    "build:precompiled": "./scripts/precompiled.sh",
     "build:server": "tsc -p src/server/tsconfig.json",
     "build:server:watch": "onchange -d 500 -k \"src/server/**/*.ts\" -- npm run build:server",
     "build:website": "webpack",
@@ -19,7 +20,6 @@
     "migrate:latest": "knex --knexfile ./dist/server/knexfile.js migrate:latest",
     "migrate:make": "cd src/server && knex migrate:make --knexfile knexfile.ts -x ts",
     "migrate:rollback": "knex --knexfile ./dist/server/knexfile.js migrate:rollback",
-    "prebuild": "./scripts/prebuild.sh",
     "start": "cross-env NODE_ENV=production node ./bin/www",
     "start:watch": "cross-env DEBUG=rps:* nodemon"
   },

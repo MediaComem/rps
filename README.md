@@ -49,10 +49,11 @@ cp .env.sample .env
 ```
 
 If you are in a **memory-constrained environment** such as a small cloud server,
-install the pre-built version of the application:
+install the pre-compiled version of the application which will be downloaded
+from GitHub:
 
 ```bash
-npm run prebuild
+npm run build:precompiled
 ```
 
 *Otherwise*, you can perform a full build, which requires copious amounts of CPU
@@ -62,7 +63,7 @@ and RAM:
 npm run build
 ```
 
-Once the prebuild or build is done, migrate the database to the latest version:
+Once the build is done, migrate the database to the latest version:
 
 ```bash
 npm run migrate
@@ -77,9 +78,9 @@ execute the following commands in the application's directory:
 # Update dependencies (install new ones and upgrade existing ones).
 npm install
 
-# Pre-build or build the application again (one or the other depending on your
-# server's capabilities).
-npm run prebuild
+# Install the pre-compiled build or build the application again (one or the
+# other depending on your server's capabilities).
+npm run build:precompiled
 npm run build
 
 # Migrate the database to the latest version.

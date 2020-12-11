@@ -141,9 +141,8 @@ function joinGame(game: Game) {
               <button class='list-group-item list-group-item-action' aria-current='true' type='button' class:list-group-item-primary='{canPlay}' class:list-group-item-secondary='{!canPlay}' on:click={() => joinGame(game)}>
                 <div class='d-flex w-100 justify-content-between'>
                   <h5 class='mb-1'>{game.players[0].name}</h5>
-                  <small>3 days ago</small>
+                  <small>waiting for players</small>
                 </div>
-                <p class='mb-1'>Donec id elit non mi porta gravida at eget metus.</p>
               </button>
             {/each}
           </div>

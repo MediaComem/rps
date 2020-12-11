@@ -1,5 +1,5 @@
 <script lang='typescript'>
-import { Game, gameCountdownMessageCodec, gameDoneMessageCodec, gameJoinedMessageCodec, Move, Player } from '../common/messages';
+import { Game, gameCountdownMessageCodec, gameDoneMessageCodec, gameJoinedMessageCodec, gameMovePlayedMessageCodec, Move, Player } from '../common/messages';
 
 import { currentGame, quitCurrentGame } from './stores/current-game';
 import { currentPlayer } from './stores/current-player';
@@ -23,8 +23,11 @@ const winsOver: Record<Move, Move> = {
 
 let countdown: number | undefined;
 let gameState = $currentGame?.players[1] === null ? GameState.WaitingForPlayer : GameState.Ongoing;
+let played: Move | undefined = undefined;
+let opponentMove: Move | null = null;
 
-$: adversary = getAdversary($currentGame, $currentPlayer);
+$: opponent = getOpponent($currentGame, $currentPlayer);
+$: canPlay = !played && gameState === GameState.CountingDown;
 
 onDisconnected(quitCurrentGame);
 
@@ -56,17 +59,24 @@ onMessage(gameDoneMessageCodec, msg => {
   }
 
   const ownMove = game.players[0].id === player.id ? msg.payload.moves[0] : msg.payload.moves[1];
-  const opposingMove = game.players[0].id === player.id ? msg.payload.moves[1] : msg.payload.moves[0];
-  if (ownMove && opposingMove && ownMove === opposingMove) {
+  opponentMove = game.players[0].id === player.id ? msg.payload.moves[1] : msg.payload.moves[0];
+  if (ownMove && opponentMove && ownMove === opponentMove) {
     gameState = GameState.Draw;
-  } else if (ownMove && opposingMove) {
-    gameState = winsOver[ownMove] === opposingMove ? GameState.Win : GameState.Loss;
+  } else if (ownMove && opponentMove) {
+    gameState = winsOver[ownMove] === opponentMove ? GameState.Win : GameState.Loss;
   } else {
     gameState = GameState.Timeout;
   }
 });
 
-function getAdversary(game: Game | null, player?: Player) {
+onMessage(gameMovePlayedMessageCodec, msg => {
+  const player = $currentPlayer;
+  if (msg.payload.playerId !== player?.id) {
+    opponentMove = msg.payload.move;
+  }
+});
+
+function getOpponent(game: Game | null, player?: Player) {
   if (!game || !player) {
     return;
   }
@@ -82,6 +92,8 @@ function play(move: Move) {
     return;
   }
 
+  played = move;
+
   webSocketStore.sendMessage({
     topic: 'games',
     event: 'play',
@@ -94,50 +106,78 @@ function play(move: Move) {
 
 </script>
 
-<main>
+<main class='text-center'>
   <div class='container'>
     <div class='row'>
       {#if gameState === GameState.WaitingForPlayer}
         <h2 class='mt-3'>Waiting for another player to join</h2>
+        <p class='text-secondary'>The game will start a few seconds after someone joins.</p>
       {:else}
-        <h2 class='mt-3'>You are playing against {adversary?.name}</h2>
+        <h2 class='mt-3'>You are playing against {opponent?.name}</h2>
       {/if}
 
-      {#if gameState === GameState.Ongoing}
-        <p>The game is about to start!</p>
-      {:else if gameState === GameState.CountingDown}
-        <div class='offset-lg-3 col-6 d-flex'>
-          <div class='btn-group btn-group-lg mt-2 flex-fill' role='group' aria-label='Play'>
-            <button type='button' class='btn btn-outline-primary' on:click={() => play('rock')}>
-              <i class='fas fa-hand-rock' />
-              Rock
-            </button>
-            <button type='button' class='btn btn-outline-primary' on:click={() => play('paper')}>
-              <i class='fas fa-hand-paper' />
-              Paper
-            </button>
-            <button type='button' class='btn btn-outline-primary' on:click={() => play('scissors')}>
-              <i class='fas fa-hand-scissors' />
-              Scissors
-            </button>
+      {#if gameState === GameState.Ongoing || gameState === GameState.CountingDown}
+        {#if gameState === GameState.Ongoing}
+          <p class='text-info'>The game is about to start!</p>
+        {:else if gameState === GameState.CountingDown}
+          <p class='text-warning'><strong>You can play</strong></p>
+        {/if}
+
+        <div class='mt-5'>
+          <h3>Your move</h3>
+          <div class='offset-lg-3 col-lg-6 d-flex mt-2'>
+            <div class='btn-group btn-group-lg flex-fill' role='group' aria-label='Play'>
+              <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "rock"}' class:btn-primary='{played === "rock"}' disabled='{!canPlay}' on:click={() => play('rock')}>
+                <i class='fas fa-hand-rock' />
+                Rock
+              </button>
+              <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "paper"}' class:btn-primary='{played === "paper"}' disabled='{!canPlay}' on:click={() => play('paper')}>
+                <i class='fas fa-hand-paper' />
+                Paper
+              </button>
+              <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "scissors"}' class:btn-primary='{played === "scissors"}' disabled='{!canPlay}' on:click={() => play('scissors')}>
+                <i class='fas fa-hand-scissors' />
+                Scissors
+              </button>
+            </div>
           </div>
         </div>
-        <p class='text-center mt-5 display-1'>{countdown}</p>
+
+        <div class='mt-5'>
+          <h3>Opponent's move</h3>
+          <div class='offset-lg-3 col-lg-6 d-flex mt-2'>
+            <div class='btn-group btn-group-lg flex-fill' role='group' aria-label='Play'>
+              <button type='button' class='btn' disabled class:btn-outline-primary='{!opponentMove}' class:btn-primary='{opponentMove === "rock"}'>
+                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "rock"}' class:fa-hand-rock='{opponentMove === "rock"}' />
+              </button>
+              <button type='button' class='btn' disabled class:btn-outline-primary='{!opponentMove}' class:btn-primary='{opponentMove === "paper"}'>
+                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "paper"}' class:fa-hand-paper='{opponentMove === "paper"}' />
+              </button>
+              <button type='button' class='btn' disabled class:btn-outline-primary='{!opponentMove}' class:btn-primary='{opponentMove === "scissors"}'>
+                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "scissors"}' class:fa-hand-paper='{opponentMove === "scissors"}' />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {#if countdown}
+          <p class='text-center mt-5 display-1'>{countdown}</p>
+        {/if}
       {:else if gameState === GameState.Timeout}
-        <div class='alert alert-secondary' role='alert'>
+        <div class='alert alert-secondary mt-5' role='alert'>
           The game timed out (one or both players did not play in time).
         </div>
       {:else if gameState === GameState.Draw}
-        <div class='alert alert-secondary' role='alert'>
-          The game is a draw.
+        <div class='alert alert-secondary mt-5' role='alert'>
+          The game is a draw. Both players played <strong class='text-secondary'>{played}</strong>.
         </div>
       {:else if gameState === GameState.Win}
-        <div class='alert alert-success' role='alert'>
-          You win!
+        <div class='alert alert-success mt-5' role='alert'>
+          You win with <strong class='text-success'>{played}</strong> against <strong class='text-danger'>{opponentMove}</strong>!
         </div>
       {:else if gameState === GameState.Loss}
-        <div class='alert alert-danger' role='alert'>
-          You lose.
+        <div class='alert alert-danger mt-5' role='alert'>
+          You lose with <strong class='text-danger'>{played}</strong> against <strong class='text-success'>{opponentMove}</strong>.
         </div>
       {/if}
     </div>

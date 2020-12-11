@@ -1,10 +1,10 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 set -e
 
 title=$(node -e 'console.log(require("./package.json").title);')
 version=$(node -e 'console.log(require("./package.json").version);')
 
-if test -z "$title" || [ "$title" == "undefined" ]; then
+if [ "$title" = "undefined" ]; then
   title="Rock Paper Scissors"
 fi
 

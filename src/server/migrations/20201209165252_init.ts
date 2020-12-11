@@ -19,10 +19,20 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.raw(`
     ALTER TABLE games
+    ADD CONSTRAINT check_second_player_data
+    CHECK (
+      (second_player_id IS NULL AND second_player_name IS NULL AND second_player_move IS NULL) OR
+      (second_player_id IS NOT NULL AND second_player_name IS NOT NULL)
+    );
+  `);
+
+  await knex.schema.raw(`
+    ALTER TABLE games
     ADD CONSTRAINT check_state
     CHECK (
-      (state = 'waiting_for_player' AND first_player_move IS NULL AND second_player_id IS NULL AND second_player_name IS NULL AND second_player_move IS NULL) OR
-      (state != 'waiting_for_player' AND second_player_id IS NOT NULL AND second_player_name IS NOT NULL)
+      (state = 'waiting_for_player' AND first_player_move IS NULL AND second_player_move IS NULL) OR
+      (state = 'ongoing' AND (first_player_move IS NULL OR second_player_move IS NULL)) OR
+      state = 'done'
     );
   `);
 }

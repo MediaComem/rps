@@ -165,7 +165,7 @@ function play(move: Move) {
         {/if}
       {:else if gameState === GameState.Timeout}
         <div class='alert alert-secondary mt-5' role='alert'>
-          The game timed out (one or both players did not play in time).
+          The game timed out (one or both players were disconnected or did not play in time).
         </div>
       {:else if gameState === GameState.Draw}
         <div class='alert alert-secondary mt-5' role='alert'>

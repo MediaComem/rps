@@ -71,7 +71,7 @@ export const gameDoneMessageCodec = t.readonly(t.interface({
   payload: t.readonly(t.interface({
     id: t.string,
     moves: t.tuple([ t.union([ moveCodec, t.null ]), t.union([ moveCodec, t.null ]) ]),
-    players: t.tuple([ playerCodec, playerCodec ])
+    players: t.tuple([ playerCodec, t.union([ playerCodec, t.null ]) ])
   }))
 }));
 

@@ -45,5 +45,8 @@ export async function createDatabase({ database: config }: Config): Promise<Data
 
   debug('Subscribed to database notifications');
 
+  // Timeout all incomplete games.
+  await knex('games').update({ state: 'done' }).whereNot('state', 'done');
+
   return { knex, subscriber };
 }

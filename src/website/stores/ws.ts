@@ -41,13 +41,16 @@ export function onDisconnected(callback: () => void) {
 
 export function onMessage<Codec extends t.ReadonlyC<t.TypeC<any>>>(codec: Codec, callback: (msg: t.TypeOf<Codec>) => void) {
   let skip = true;
+  // TODO: split connected & latestMessage into separate stores to avoid this trick.
+  let latestMessage: t.TypeOf<Codec> | undefined = undefined;
   onDestroy(filtered(webSocketStore.latestMessage, codec.is).subscribe(msg => {
-    if (!msg || skip) {
+    if (!msg || skip || msg === latestMessage) {
       skip = false;
       return;
     }
 
     skip = false;
+    latestMessage = msg;
     callback(msg);
   }));
 }

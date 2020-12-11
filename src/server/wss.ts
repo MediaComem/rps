@@ -232,7 +232,7 @@ async function handleGamePlayedNotification(db: Database, { id, move, playerId }
       }
     });
   } else {
-    sendGameDoneMessage(game);
+    sendGameDoneMessage(game, false);
   }
 }
 
@@ -243,7 +243,7 @@ async function handleGameTimeoutNotification(db: Database, { id }: { id: string 
     return;
   }
 
-  sendGameDoneMessage(game);
+  sendGameDoneMessage(game, true);
 }
 
 function registerClient(db: Database, client: WebSocket) {
@@ -264,19 +264,49 @@ function registerClient(db: Database, client: WebSocket) {
     }
   });
 
-  client.send(encodeMessage({
+  client.on('close', () => {
+    Promise
+      .resolve()
+      .then(() => timeOutPlayerGames(db, clientId))
+      .catch(err => console.error(err.stack));
+  });
+
+  sendMessage(clientId, {
     topic: 'players',
     event: 'registered',
     payload: {
       id: clientId
     }
-  }))
+  });
 
-  client.send(encodeMessage({
+  Promise
+    .resolve()
+    .then(() => sendAvailableGames(db, clientId))
+    .catch(err => console.error(err.stack));
+}
+
+async function sendAvailableGames(db: Database, clientId: string) {
+
+  const games = await db.knex('games')
+    .select()
+    .where({ state: 'waiting_for_player' })
+    .whereNot('first_player_id', clientId);
+
+  sendMessage(clientId, {
     topic: 'games',
     event: 'available',
-    payload: []
-  }));
+    payload: games.map(serializeGame)
+  });
+}
+
+function serializeGame(game: any): Game {
+  return {
+    id: game.id,
+    players: [
+      { id: game.first_player_id, name: game.first_player_name },
+      game.second_player_id ? { id: game.second_player_id, name: game.second_player_name } : null
+    ]
+  };
 }
 
 function broadcastMessage(message: Message) {
@@ -312,7 +342,7 @@ function startGameCountdownForPlayer(db: Database, game: Game, player: Player) {
   setTimeout(() => sendCountdownMessage(player, 3), 3000)
   setTimeout(() => sendCountdownMessage(player, 2), 4000)
   setTimeout(() => sendCountdownMessage(player, 1), 5000)
-  setTimeout(() => timeOutGame(db, game), 6000);
+  setTimeout(() => timeOutGame(db, game.id), 6000);
 }
 
 function sendCountdownMessage(player: Player, value: number) {
@@ -323,34 +353,57 @@ function sendCountdownMessage(player: Player, value: number) {
   });
 }
 
-async function timeOutGame(db: Database, { id }: Game) {
+async function timeOutGame(db: Database, gameId: string) {
 
-  const updateCount = await db.knex('games').update({ state: 'done' }).where({ id, state: 'ongoing' });
+  const updateCount = await db.knex('games')
+    .update({ state: 'done' })
+    .where({ id: gameId })
+    .whereNot('state', 'done');
+
   if (updateCount <= 0) {
     return;
   }
 
   await notify(db.knex, {
     channel: 'games:timeout',
-    payload: { id }
+    payload: { id: gameId }
   });
 }
 
-function sendGameDoneMessage(game: any) {
+async function timeOutPlayerGames(db: Database, playerId: string) {
+
+  const games = await db.knex('games')
+    .select()
+    .whereRaw('first_player_id = ? OR second_player_id = ?', [ playerId, playerId ])
+    .whereNot('state', 'done');
+
+  for (const game of games) {
+    await timeOutGame(db, game.id);
+  }
+}
+
+function sendGameDoneMessage(game: any, toEveryone: boolean) {
 
   const msg: GameDoneMessage = {
     topic: 'games',
     event: 'done',
     payload: {
       id: game.id,
-      moves: [ game.first_player_move ?? null, game.second_player_move ?? null ],
+      moves: [
+        game.first_player_move ?? null,
+        game.second_player_move ?? null
+      ],
       players: [
         { id: game.first_player_id, name: game.first_player_name },
-        { id: game.second_player_id, name: game.second_player_name }
+        game.second_player_id ? { id: game.second_player_id, name: game.second_player_name } : null
       ]
     }
   };
 
-  sendMessage(game.first_player_id, msg);
-  sendMessage(game.second_player_id, msg);
+  if (toEveryone) {
+    broadcastMessage(msg);
+  } else {
+    sendMessage(game.first_player_id, msg);
+    sendMessage(game.second_player_id, msg);
+  }
 }

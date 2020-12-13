@@ -1,5 +1,5 @@
 # TODO
 
-* Auto reconnect
+* Use koa
 * Proper logging
 * Only use necessary fonts

@@ -45,6 +45,9 @@ sudo -u postgres createuser --pwprompt rps
 # Create an empty PostgreSQL database named "rps" and owned by the "rps" user.
 sudo -u postgres createdb --owner rps rps
 
+# Create the "uuid-ossp" PostgreSQL extension in the "rps" database.
+sudo -u postgres psql -d rps -c 'CREATE EXTENSION "uuid-ossp"'
+
 # Create a .env file and edit it to adapt the PostgreSQL connection URL
 # according to the user and database you just created.
 cp .env.sample .env

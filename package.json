@@ -20,7 +20,7 @@
     "migrate:latest": "knex --knexfile ./dist/server/knexfile.js migrate:latest",
     "migrate:make": "cd src/server && knex migrate:make --knexfile knexfile.ts -x ts",
     "migrate:rollback": "knex --knexfile ./dist/server/knexfile.js migrate:rollback",
-    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "start": "node ./bin/www",
     "start:watch": "cross-env DEBUG=rps:* nodemon"
   },
   "dependencies": {

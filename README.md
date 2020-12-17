@@ -116,11 +116,11 @@ npm start
 The following environment variables can be set to customize the application's
 behavior:
 
-Variable             | Default value                    | Description
-:------------------- | :------------------------------- | :------------------------------------------------
-`RPS_DATABASE_DEBUG` | `false`                          | When true, database queries are logged.
-`RPS_DATABASE_URL`   | `postgresql://rps@localhost/rps` | PostgreSQL connection URL.
-`RPS_PORT` or `PORT` | `3000`                           | The port on which the application will listen to.
+Variable                             | Default value                    | Description
+:----------------------------------- | :------------------------------- | :------------------------------------------------
+`RPS_DATABASE_DEBUG`                 | `false`                          | When true, database queries are logged.
+`RPS_DATABASE_URL` or `DATABASE_URL` | `postgresql://rps@localhost/rps` | PostgreSQL connection URL.
+`RPS_PORT` or `PORT`                 | `3000`                           | The port on which the application will listen to.
 
 
 

@@ -22,7 +22,7 @@ export async function loadConfig(): Promise<Config> {
     database: {
       client: 'postgresql',
       // FIXME: check valid URL
-      connection: process.env.RPS_DATABASE_URL || 'postgresql://rps@localhost/rps',
+      connection: process.env.RPS_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://rps@localhost/rps',
       // FIXME: pretty database query logs
       debug: parseEnvBoolean('RPS_DATABASE_DEBUG', { required: false }),
       migrations: {

@@ -3,7 +3,7 @@
 import { onDestroy } from 'svelte';
 import { writable } from 'svelte/store';
 
-import { availableGamesMessageCodec, Game, gameCreatedMessageCodec, gameDoneMessageCodec, gameJoinedMessageCodec, playerRegisteredMessageCodec } from '../common/messages';
+import { availableGamesMessageCodec, type Game, gameCreatedMessageCodec, gameDoneMessageCodec, gameJoinedMessageCodec, playerRegisteredMessageCodec } from '../common/messages';
 import { currentGame } from './stores/current-game';
 import { currentPlayer } from './stores/current-player';
 import { onDisconnected, onMessage, webSocketStore } from './stores/ws';
@@ -108,7 +108,7 @@ function joinGame(game: Game) {
 
       <!-- Player -->
       <div class='col'>
-        <h2 class='mt-3'>Who are you? </h2>
+        <h2 class='mt-3'>Who are you?</h2>
         <form on:submit|preventDefault={createGame}>
           <div class='mb-3'>
             <label for='player-name' class='form-label'>Player name</label>

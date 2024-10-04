@@ -108,7 +108,7 @@ function joinGame(game: Game) {
 
       <!-- Player -->
       <div class='col'>
-        <h2 class='mt-3'>Who are you?</h2>
+        <h2 class='mt-3'>Who are you? </h2>
         <form on:submit|preventDefault={createGame}>
           <div class='mb-3'>
             <label for='player-name' class='form-label'>Player name</label>

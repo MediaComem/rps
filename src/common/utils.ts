@@ -1,7 +1,7 @@
-import { isRight } from 'fp-ts/lib/Either';
+import { isRight } from 'fp-ts/lib/Either.js';
 import type * as t from 'io-ts';
 
-import type { Message } from './messages';
+import type { Message } from './messages.js';
 
 export function decode<Codec extends t.ReadonlyC<t.TypeC<any>> | t.TypeC<any> | t.UnionC<any>>(
   codec: Codec,

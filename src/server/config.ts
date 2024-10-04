@@ -1,4 +1,4 @@
-import { MigratorConfig, PoolConfig } from 'knex';
+import { Knex } from 'knex';
 import { join as joinPath, resolve as resolvePath } from 'path';
 
 export interface Config {
@@ -6,14 +6,14 @@ export interface Config {
     readonly client: string;
     readonly connection: string;
     readonly debug?: boolean;
-    readonly migrations: MigratorConfig;
-    readonly pool: PoolConfig;
+    readonly migrations: Knex.MigratorConfig;
+    readonly pool: Knex.PoolConfig;
   };
   readonly port: number;
 }
 
-export const env = process.env.NODE_ENV || 'development';
-export const root = resolvePath(joinPath(__dirname, '..', '..'));
+export const env = process.env.NODE_ENV ?? 'development';
+export const root = resolvePath(joinPath(import.meta.dirname, '..', '..'));
 
 export async function loadConfig(): Promise<Config> {
   await loadDotenvIfAvailable();
@@ -22,7 +22,7 @@ export async function loadConfig(): Promise<Config> {
     database: {
       client: 'postgresql',
       // FIXME: check valid URL
-      connection: process.env.RPS_DATABASE_URL || 'postgresql://rps@localhost/rps',
+      connection: process.env.RPS_DATABASE_URL ?? 'postgresql://rps@localhost/rps',
       // FIXME: pretty database query logs
       debug: parseEnvBoolean('RPS_DATABASE_DEBUG', { required: false }),
       migrations: {
@@ -34,7 +34,7 @@ export async function loadConfig(): Promise<Config> {
         max: 10
       }
     },
-    port: parseEnvPort('RPS_PORT', { required: false }) || parseEnvPort('PORT', { required: false }) || 3000
+    port: parseEnvPort('RPS_PORT', { required: false }) ?? parseEnvPort('PORT', { required: false }) ?? 3000
   });
 }
 

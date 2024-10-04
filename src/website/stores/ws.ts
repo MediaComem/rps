@@ -1,8 +1,8 @@
 import type * as t from 'io-ts';
 import { onDestroy } from 'svelte';
-import { derived, readable, Readable } from 'svelte/store';
+import { derived, readable, type Readable } from 'svelte/store';
 
-import { Message, messageCodec } from '../../common/messages';
+import { type Message, messageCodec } from '../../common/messages';
 import { decodeString, encodeMessage } from '../../common/utils';
 import { filtered } from '../utils';
 

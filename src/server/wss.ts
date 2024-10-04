@@ -1,17 +1,15 @@
 import { Server as HttpServer } from 'http';
 import * as t from 'io-ts';
-import * as Knex from 'knex';
+import { Knex } from 'knex';
 import { v4 as uuid } from 'uuid';
 import * as WebSocket from 'ws';
-import { Server as WebSocketServer } from 'ws';
 
-import { CreateGameMessage, Game, gameCodec, GameDoneMessage, GameMessage, JoinGameMessage, joinGameMessageCodec, Message, messageCodec, Move, Player, PlayInGameMessage } from '../common/messages';
-import { decode, decodeString, encodeMessage } from '../common/utils';
-import { Database } from './db';
-import { gameMovePlayedCodec, gameTimeoutCodec, Notification } from './notifications';
+import { CreateGameMessage, Game, gameCodec, GameDoneMessage, GameMessage, JoinGameMessage, Message, messageCodec, Move, Player, PlayInGameMessage } from '../common/messages.js';
+import { decode, decodeString, encodeMessage } from '../common/utils.js';
+import { Database } from './db.js';
+import { gameMovePlayedCodec, gameTimeoutCodec, Notification } from './notifications.js';
 
 const clients: Record<string, WebSocket | undefined> = {};
-const games: Game[] = [];
 
 export function createWebSocketServer(db: Database, httpServer: HttpServer) {
 
@@ -20,7 +18,7 @@ export function createWebSocketServer(db: Database, httpServer: HttpServer) {
   subscribeToNotification(db, 'games:played', gameMovePlayedCodec, handleGamePlayedNotification);
   subscribeToNotification(db, 'games:timeout', gameTimeoutCodec, handleGameTimeoutNotification);
 
-  const webSocketServer = new WebSocketServer({ server: httpServer });
+  const webSocketServer = new WebSocket.WebSocketServer({ server: httpServer });
   webSocketServer.on('connection', client => registerClient(db, client));
 }
 
@@ -29,15 +27,14 @@ async function createGame(db: Database, clientId: string, message: CreateGameMes
 
   const firstPlayer: Player = { id: clientId, name: playerName };
 
-  let gameId = '';
   await db.knex.transaction(async trx => {
-    [ gameId ] = await trx('games').insert({
+    const [ data ] = await trx('games').insert({
       first_player_id: clientId,
       first_player_name: playerName
     }).returning('id')
 
     const newGame: Game = {
-      id: gameId,
+      id: data.id,
       players: [ firstPlayer, null ]
     };
 
@@ -170,8 +167,6 @@ async function handleGameCreatedNotification(_db: Database, game: Game) {
   const clientId = game.players[0].id;
   const gameId = game.id;
 
-  games.push(game);
-
   sendMessage(clientId, {
     topic: 'games',
     event: 'created',
@@ -253,7 +248,7 @@ function registerClient(db: Database, client: WebSocket) {
   console.log(`Client ${clientId} connected`);
 
   client.on('message', message => {
-    const decoded = decodeString(messageCodec, message);
+    const decoded = decodeString(messageCodec, message.toString());
     if (decoded) {
       Promise
         .resolve()

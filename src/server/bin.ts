@@ -1,8 +1,8 @@
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
-import { loadConfig } from './config';
-import { createDatabase } from './db';
-import { start as startServer } from './server';
+import { loadConfig } from './config.js';
+import { createDatabase } from './db.js';
+import { start as startServer } from './server.js';
 
 Promise
   .resolve()

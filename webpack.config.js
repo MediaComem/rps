@@ -1,17 +1,16 @@
 import HtmlPlugin from 'html-webpack-plugin';
 import { join as joinPath, resolve as resolvePath } from 'path';
-import sveltePreprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 import TerserPlugin from 'terser-webpack-plugin';
-import { Configuration } from 'webpack';
 
-import * as pkg from './package.json';
+import * as pkg from './package.json' with { type: 'json' };
 
-const root = __dirname;
+const root = import.meta.dirname;
 const publicDir = joinPath(root, 'public');
 
 const mode = getWebpackMode();
 
-const config: Configuration = {
+const config = {
   mode,
   devtool: 'source-map',
   entry: './src/website/main.ts',
@@ -25,28 +24,17 @@ const config: Configuration = {
         test: /\.styl$/i,
         use: [ 'style-loader', 'css-loader', 'stylus-loader' ]
       },
-      // Fix for svelte-loader problem. See
-      // https://github.com/sveltejs/svelte-loader/issues/139.
-      {
-        test: /node_modules\/svelte\/.*\.mjs$/,
-        resolve: {
-          fullySpecified: false // load Svelte correctly
-        }
-      },
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
       },
       {
-        test: /\.(html|svelte)$/,
+        test: /\.svelte$/,
         exclude: /node_modules/,
         use: {
           loader: 'svelte-loader',
           options: {
-            // Set emitCss to false to fix svelte-loader problem. See
-            // https://github.com/sveltejs/svelte-loader/issues/139.
-            emitCss: false,
             preprocess: sveltePreprocess({})
           }
         }
@@ -69,12 +57,18 @@ const config: Configuration = {
     minimize: mode === 'production',
     minimizer: [ new TerserPlugin() ]
   },
+  performance: {
+    hints: false,
+    maxEntrypointSize: 1024 * 1024 * 2, // 2 MB
+    maxAssetSize: 1024 * 512 // 512 KB
+  },
   resolve: {
     alias: {
-      svelte: resolvePath('node_modules', 'svelte')
+      svelte: resolvePath('node_modules', 'svelte/src/runtime')
     },
     extensions: [ '.mjs', '.js', '.svelte', '.ts' ],
-    mainFields: [ 'svelte', 'browser', 'module', 'main' ]
+    mainFields: [ 'svelte', 'browser', 'module', 'main' ],
+    conditionNames: [ 'svelte', 'browser' ]
   },
   output: {
     filename: 'app.[contenthash].js',

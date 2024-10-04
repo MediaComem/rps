@@ -1,7 +1,7 @@
-import { env, loadConfig } from './config';
+import { env, loadConfig } from './config.js';
 
 // export default configs;
-module.exports = async () => {
+export default async () => {
   const { database: config } = await loadConfig();
   return { [env]: config };
 };

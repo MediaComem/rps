@@ -128,15 +128,15 @@ function play(move: Move) {
           <div class='offset-lg-3 col-lg-6 d-flex mt-2'>
             <div class='btn-group btn-group-lg flex-fill' role='group' aria-label='Play'>
               <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "rock"}' class:btn-primary='{played === "rock"}' disabled='{!canPlay}' on:click={() => play('rock')}>
-                <i class='fas fa-hand-rock' />
+                <i class='fa-solid fa-hand-rock' />
                 Rock
               </button>
               <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "paper"}' class:btn-primary='{played === "paper"}' disabled='{!canPlay}' on:click={() => play('paper')}>
-                <i class='fas fa-hand-paper' />
+                <i class='fa-solid fa-hand-paper' />
                 Paper
               </button>
               <button type='button' class='btn' class:btn-outline-primary='{!played}' class:btn-outline-secondary='{played && played !== "scissors"}' class:btn-primary='{played === "scissors"}' disabled='{!canPlay}' on:click={() => play('scissors')}>
-                <i class='fas fa-hand-scissors' />
+                <i class='fa-solid fa-hand-scissors' />
                 Scissors
               </button>
             </div>
@@ -148,13 +148,13 @@ function play(move: Move) {
           <div class='offset-lg-3 col-lg-6 d-flex mt-2'>
             <div class='btn-group btn-group-lg flex-fill' role='group' aria-label='Play'>
               <button type='button' class='btn' disabled class:btn-outline-primary='{opponentMove !== "rock"}' class:btn-primary='{opponentMove === "rock"}'>
-                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "rock"}' class:fa-hand-rock='{opponentMove === "rock"}' />
+                <i class='fa-solid' class:fa-question-circle='{!opponentMove || opponentMove !== "rock"}' class:fa-hand-rock='{opponentMove === "rock"}' />
               </button>
               <button type='button' class='btn' disabled class:btn-outline-primary='{opponentMove !== "paper"}' class:btn-primary='{opponentMove === "paper"}'>
-                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "paper"}' class:fa-hand-paper='{opponentMove === "paper"}' />
+                <i class='fa-solid' class:fa-question-circle='{!opponentMove || opponentMove !== "paper"}' class:fa-hand-paper='{opponentMove === "paper"}' />
               </button>
               <button type='button' class='btn' disabled class:btn-outline-primary='{opponentMove !== "scissors"}' class:btn-primary='{opponentMove === "scissors"}'>
-                <i class='fas' class:fa-question-circle='{!opponentMove || opponentMove !== "scissors"}' class:fa-hand-paper='{opponentMove === "scissors"}' />
+                <i class='fa-solid' class:fa-question-circle='{!opponentMove || opponentMove !== "scissors"}' class:fa-hand-paper='{opponentMove === "scissors"}' />
               </button>
             </div>
           </div>

@@ -1,10 +1,9 @@
-import * as express from 'express';
-import { json as parseJson, NextFunction, Request, Response, static as serveStatic } from 'express';
-import * as logger from 'morgan';
+import express, { json as parseJson, NextFunction, Request, Response, static as serveStatic } from 'express';
+import logger from 'morgan';
 import { join as joinPath } from 'path';
 
-import { root } from './config';
-import { isHttpStatus, isObject } from './utils';
+import { root } from './config.js';
+import { isHttpStatus, isObject } from './utils.js';
 
 export function createApplication() {
 

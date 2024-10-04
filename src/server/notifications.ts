@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 
-import { gameCodec, moveCodec } from '../common/messages';
+import { gameCodec, moveCodec } from '../common/messages.js';
 
 export const gameMovePlayedCodec = t.readonly(t.interface({
   id: t.string,

@@ -1,4 +1,4 @@
-import { derived, Readable } from 'svelte/store';
+import { derived, type Readable } from 'svelte/store';
 
 export type Unsubscriber = () => void;
 

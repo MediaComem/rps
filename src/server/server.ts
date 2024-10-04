@@ -1,10 +1,10 @@
-import * as debugFactory from 'debug';
+import debugFactory from 'debug';
 import { createServer as createHttpServer } from 'http';
 
-import { createApplication } from './app';
-import { Config } from './config';
-import { Database } from './db';
-import { createWebSocketServer } from './wss';
+import { createApplication } from './app.js';
+import { Config } from './config.js';
+import { Database } from './db.js';
+import { createWebSocketServer } from './wss.js';
 
 const debug = debugFactory('rps:server');
 

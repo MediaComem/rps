@@ -10,7 +10,6 @@
     "declaration": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "moduleResolution": "node",
     "noEmit": false,

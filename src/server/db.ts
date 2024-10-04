@@ -1,8 +1,10 @@
-import * as debugFactory from 'debug';
-import * as Knex from 'knex';
+import debugFactory from 'debug';
+import knex, { Knex } from 'knex';
 import createSubscriber, { Subscriber } from 'pg-listen';
 
-import { Config } from './config';
+import { Config } from './config.js';
+
+const { knex: knexFactory } = knex;
 
 export interface Database {
   readonly knex: Knex;
@@ -13,7 +15,7 @@ const debug = debugFactory('rps:db');
 
 export async function createDatabase({ database: config }: Config): Promise<Database> {
 
-  const knex = Knex(config);
+  const knex = knexFactory(config);
 
   // Ensure the database can be reached.
   const result = await knex.raw('SELECT 1 + 2 AS count;');

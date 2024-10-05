@@ -13,7 +13,7 @@ export interface Database {
 
 const debug = debugFactory('rps:db');
 
-export async function createDatabase({ database: config }: Config): Promise<Database> {
+export async function createDatabase({ database: config, migrate }: Config): Promise<Database> {
 
   const knex = knexFactory(config);
 
@@ -24,6 +24,12 @@ export async function createDatabase({ database: config }: Config): Promise<Data
   }
 
   debug('Connected to the database');
+
+  if (migrate) {
+    debug('Migrating the database...');
+    await knex.migrate.latest(config.migrations);
+    debug('Database successfully migrated to the latest version');
+  }
 
   // Subscribe to notifications.
   const subscriber = createSubscriber({

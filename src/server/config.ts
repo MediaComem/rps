@@ -9,6 +9,7 @@ export interface Config {
     readonly migrations: Knex.MigratorConfig;
     readonly pool: Knex.PoolConfig;
   };
+  readonly migrate: boolean;
   readonly port: number;
 }
 
@@ -34,6 +35,7 @@ export async function loadConfig(): Promise<Config> {
         max: 10
       }
     },
+    migrate: parseEnvBoolean('RPS_MIGRATE', { required: false }) ?? false,
     port: parseEnvPort('RPS_PORT', { required: false }) ?? parseEnvPort('PORT', { required: false }) ?? 3000
   });
 }
@@ -82,7 +84,6 @@ function parseEnv(varname: string, options: Partial<ParseEnvOptions> = {}) {
 function parseEnvBoolean(varname: string, options?: Partial<ParseEnvOptions>): boolean | undefined;
 function parseEnvBoolean(varname: string, options: ParseEnvOptions): boolean;
 function parseEnvBoolean(varname: string, options: Partial<ParseEnvOptions> = {}) {
-
   const value = parseEnv(varname, options);
   if (value === undefined) {
     return;

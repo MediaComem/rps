@@ -1,0 +1,38 @@
+# https://docs.docker.com/reference/compose-file/
+name: rps
+
+services:
+  app:
+    image: archidep/rps
+    build: .
+    depends_on:
+      - db
+    environment:
+      DEBUG: rps:*
+      RPS_DATABASE_URL: postgres://rps:${RPS_POSTGRES_PASSWORD}@db:5432/rps
+      RPS_MIGRATE: 1
+    networks:
+      - app
+      - db
+    ports:
+      - "${RPS_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  db:
+    image: postgres:17.0-alpine
+    environment:
+      POSTGRES_PASSWORD: ${RPS_POSTGRES_PASSWORD}
+      POSTGRES_USER: rps
+      POSTGRES_DB: rps
+    networks:
+      - db
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+networks:
+  app:
+  db:
+
+volumes:
+  db_data:

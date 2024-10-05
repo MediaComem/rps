@@ -1,0 +1,15 @@
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+/.ackrc
+/compose.yml
+/dist
+/.editorconfig
+/.env
+/.env.sample
+/.gitignore
+/LICENSE.txt
+/node_modules
+/nodemon.json
+/public
+/README.md
+/tmp
+/.tool-versions

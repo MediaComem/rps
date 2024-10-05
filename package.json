@@ -8,7 +8,6 @@
     "build": "npm run build:clean && cross-env RPS_WEBPACK_MODE=production npm run build:all",
     "build:all": "concurrently \"npm run build:server\" \"npm run build:website\"",
     "build:clean": "rimraf dist public",
-    "build:precompiled": "./scripts/precompiled.sh",
     "build:server": "tsc -p src/server/tsconfig.json",
     "build:server:watch": "onchange -d 500 -k \"src/server/**/*.ts\" -- npm run build:server",
     "build:website": "webpack",

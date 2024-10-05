@@ -1,0 +1,44 @@
+name: build
+
+on:
+  push:
+    branches:
+      - '**/*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      # https://github.com/asdf-vm/actions#setup
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@v3
+        with:
+          asdf_branch: v0.14.1
+
+      - name: Install Node.js with asdf
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+
+      - name: Install Node.js dependencies
+        run: |
+          npm ci
+
+      - name: Build the server
+        run: |
+          npm run build:server
+
+      - name: Build the website
+        run: |
+          npm run build:website
+
+      - name: Ensure there are no uncommitted changes
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"

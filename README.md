@@ -3,6 +3,10 @@
 > "Life is more fun if you play games."
 > — Roald Dahl
 
+[![build](https://github.com/MediaComem/rps/actions/workflows/build.yml/badge.svg)](https://github.com/MediaComem/rps/actions/workflows/build.yml)
+[![publish](https://github.com/MediaComem/rps/actions/workflows/publish.yml/badge.svg)](https://github.com/MediaComem/rps/actions/workflows/publish.yml)
+[![license](https://img.shields.io/github/license/MediaComem/rps)](https://opensource.org/licenses/MIT)
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
